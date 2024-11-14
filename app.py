@@ -1,24 +1,20 @@
-import os
-from dotenv import load_dotenv
+import streamlit as st
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_groq import ChatGroq
-import streamlit as st
 
-# Load environment variables from .env
-load_dotenv()
+# Retrieve the API keys from Streamlit secrets
+langchain_api_key = st.secrets["langchain_api_key"]
+groq_api_key = st.secrets["groq_api_key"]
 
-# Retrieve the keys from environment variables
-langchain_api_key = os.getenv("langchain_api_key")
-groq_api_key = os.getenv("groq_api_key")
-
-# Check if the keys are retrieved correctly
+# Check if the API keys are retrieved correctly
 if not langchain_api_key or not groq_api_key:
-    raise ValueError("API keys are not set. Please check your .env file.")
+    raise ValueError("API keys are not set. Please check your Streamlit Cloud secrets.")
 
-# Set the environment variable for langchain explicitly
+# Set the environment variables explicitly (if necessary for any downstream libraries)
+import os
 os.environ['langchain_api_key'] = langchain_api_key
-os.environ['groq_api_key'] = groq_api_key  # Explicitly set the groq_api_key as well
+os.environ['groq_api_key'] = groq_api_key
 
 # Define the prompt template with memory
 conversation_history = []
@@ -34,6 +30,7 @@ def generate_response(question, engine, temperature, max_token):
     # Add past conversation to the prompt
     prompt = ChatPromptTemplate.from_messages([("system", "You are a helpful Assistant")] + conversation_history)
     
+    # Create the chain to process the prompt and model
     chain = prompt | llm | output_parser
     answer = chain.invoke({"question": question})
     
@@ -46,9 +43,14 @@ def generate_response(question, engine, temperature, max_token):
 st.title("QnA Chatbot with Memory")
 
 # Sidebar selections
-engine = st.sidebar.selectbox("Select model", ["gemma2-9b-it", "llama3-groq-70b-8192-tool-use-preview", "llama-3.1-8b-instant", "lama3-groq-8b-8192-tool-use-preview"])
+engine = st.sidebar.selectbox("Select model", [
+    "gemma2-9b-it", 
+    "llama3-groq-70b-8192-tool-use-preview", 
+    "llama-3.1-8b-instant", 
+    "lama3-groq-8b-8192-tool-use-preview"
+])
 temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.7)
-max_token = st.sidebar.slider("Max Tokens", min_value=100, max_value=500, value=250 )
+max_token = st.sidebar.slider("Max Tokens", min_value=100, max_value=500, value=250)
 
 # Display the conversation history
 st.write("### Conversation History")
