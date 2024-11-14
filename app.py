@@ -51,7 +51,7 @@ temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, val
 max_token = st.sidebar.slider("Max Tokens", min_value=100, max_value=500, value=250 )
 
 # Display the conversation history
-st.write("### Conversation History")
+
 for i, (role, message) in enumerate(conversation_history):
     if role == "user":
         st.write(f"**You:** {message}")
