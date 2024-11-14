@@ -18,9 +18,9 @@ if not langchain_api_key or not groq_api_key:
 
 # Set the environment variable for langchain explicitly
 os.environ['langchain_api_key'] = langchain_api_key
+os.environ['groq_api_key'] = groq_api_key  # Explicitly set the groq_api_key as well
 
 # Define the prompt template with memory
-# We will create a list to store conversation history
 conversation_history = []
 
 # Function to generate a response
